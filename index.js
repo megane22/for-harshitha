@@ -16,10 +16,9 @@ function findPair(aListOfTasks) {
 			pickTask2 = aListOfTasks[index2];
 			console.log(pickTask1.duration + pickTask2.duration);
 			if (pickTask1.duration + pickTask2.duration == 60) {
-				print("Returning!");
 				var newPair = [];
-				newPair.push(pickTask1);
-				newPair.push(pickTask2);
+				newPair.push(index1);
+				newPair.push(index2);
 				return newPair;
 			}
 		}
@@ -51,4 +50,35 @@ function checkTasks() {
 
 	var newPair = findPair(myTasks);
 	console.log(newPair);
+
+	var sched1 = schedule(myTasks);
+	console.log(sched1);
+}
+
+function schedule(aListOfTasks) {
+	var schedule = [];
+	var taskCopy = aListOfTasks;
+	while (taskCopy.length > 0) {
+		//Try to find a pair first
+		var taskPair = findPair(aListOfTasks);
+		if (taskPair.length > 0) {
+			schedule.push(taskCopy[taskPair[0]]);
+			schedule.push(taskCopy[taskPair[1]]);
+			schedule.push(new Task("break", 10));
+
+			taskCopy.splice(taskPair[0], 1);
+			taskCopy.splice(taskPair[1]-1, 1);
+		}
+
+		//If no pair, just add the first thing from the tasks
+		else {
+			schedule.push(taskCopy[0]);
+			if (taskCopy[0].duration >= 30) {
+				schedule.push(new Task("break", 5));
+			}
+			taskCopy.splice(0, 1);
+		}
+	}
+
+	return schedule;
 }
